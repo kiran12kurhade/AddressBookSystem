@@ -1,9 +1,6 @@
 package com.address;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 class Contact {
     private String firstName;
@@ -109,7 +106,7 @@ class Contact {
 }
 
 
-public class AddressBookSystem {
+class AddressBookSystem {
 
     private List<Contact> contactList;
 
@@ -132,6 +129,7 @@ public class AddressBookSystem {
             }
         }
     }
+
     // Method to find a contact by their first or last name
     public Contact findContactByName(String name) {
         for (Contact contact : contactList) {
@@ -205,6 +203,7 @@ public class AddressBookSystem {
 
         System.out.println("Contact updated successfully!");
     }
+
     // Method to delete a contact from the address book using first and last name
     public boolean deleteContact(String firstName, String lastName) {
         Iterator<Contact> iterator = contactList.iterator();
@@ -218,27 +217,110 @@ public class AddressBookSystem {
         }
         return false; // Contact not found
     }
+}
+
+public class AddressBookManager {
+    private Map<String, AddressBookSystem> addressBooks;
+
+    public AddressBookManager() {
+        addressBooks = new HashMap<>();
+    }
+
+    // Method to add a new Address Book
+    public void addAddressBook(String name) {
+        if (!addressBooks.containsKey(name)) {
+            addressBooks.put(name, new AddressBookSystem());
+            System.out.println("Address Book '" + name + "' created successfully.");
+        } else {
+            System.out.println("Address Book '" + name + "' already exists.");
+        }
+    }
+
+    // Method to get an Address Book by name
+    public AddressBookSystem getAddressBook(String name) {
+        return addressBooks.get(name);
+    }
+
+    // Method to display all Address Books
+    public void displayAddressBooks() {
+        if (addressBooks.isEmpty()) {
+            System.out.println("No Address Books found.");
+        } else {
+            System.out.println("Available Address Books:");
+            for (String name : addressBooks.keySet()) {
+                System.out.println("- " + name);
+            }
+        }
+    }
 
     public static void main(String[] args) {
-
-        AddressBookSystem addressBook = new AddressBookSystem();
+        AddressBookManager manager = new AddressBookManager();
         Scanner sc = new Scanner(System.in);
 
         boolean running = true;
 
         while (running) {
-            System.out.println("\nAddress Book Menu:");
-            System.out.println("1. Add New Contact");
-            System.out.println("2. Edit Existing Contact");
-            System.out.println("3. Display All Contacts");
-            System.out.println("4. Delete Contact");
-            System.out.println("5. Exit");
+            System.out.println("\nAddress Book Manager Menu:");
+            System.out.println("1. Create New Address Book");
+            System.out.println("2. Select Address Book");
+            System.out.println("3. Display All Address Books");
+            System.out.println("4. Exit");
             System.out.print("Enter your choice: ");
             int choice = sc.nextInt();
             sc.nextLine(); // Consume the newline character
 
             switch (choice) {
-                case 1: // Add multiple new contacts
+                case 1: // Create new address book
+                    System.out.println("Enter Address Book Name: ");
+                    String bookName = sc.nextLine();
+                    manager.addAddressBook(bookName);
+                    break;
+
+                case 2: // Select address book to manage
+                    System.out.println("Enter Address Book Name to manage: ");
+                    String selectedBookName = sc.nextLine();
+                    AddressBookSystem selectedAddressBook = manager.getAddressBook(selectedBookName);
+
+                    if (selectedAddressBook != null) {
+                        manageAddressBook(selectedAddressBook, sc);
+                    } else {
+                        System.out.println("Address Book not found.");
+                    }
+                    break;
+
+                case 3: // Display all address books
+                    manager.displayAddressBooks();
+                    break;
+
+                case 4: // Exit
+                    running = false;
+                    System.out.println("Exiting Address Book Manager...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice! Please try again.");
+            }
+        }
+        sc.close();
+    }
+
+    // Manage contacts in the selected Address Book
+    private static void manageAddressBook(AddressBookSystem addressBook, Scanner sc) {
+        boolean managing = true;
+
+        while (managing) {
+            System.out.println("\nAddress Book Menu:");
+            System.out.println("1. Add New Contact");
+            System.out.println("2. Edit Existing Contact");
+            System.out.println("3. Display All Contacts");
+            System.out.println("4. Delete Contact");
+            System.out.println("5. Back to Main Menu");
+            System.out.print("Enter your choice: ");
+            int choice = sc.nextInt();
+            sc.nextLine(); // Consume the newline character
+
+            switch (choice) {
+                case 1: // Add new contact
                     boolean addingContacts = true;
                     while (addingContacts) {
                         System.out.println("Enter First Name: ");
@@ -273,7 +355,17 @@ public class AddressBookSystem {
                     break;
 
                 case 2: // Edit existing contact
-                    // Similar to add, not in scope here.
+                    System.out.println("Enter the First Name of the contact to edit: ");
+                    String editFirstName = sc.nextLine();
+                    System.out.println("Enter the Last Name of the contact to edit: ");
+                    String editLastName = sc.nextLine();
+
+                    Contact contactToEdit = addressBook.findContactByName(editFirstName);
+                    if (contactToEdit != null) {
+                        addressBook.editContact(contactToEdit, sc);
+                    } else {
+                        System.out.println("Contact not found.");
+                    }
                     break;
 
                 case 3: // Display all contacts
@@ -294,9 +386,8 @@ public class AddressBookSystem {
                     }
                     break;
 
-                case 5: // Exit
-                    running = false;
-                    System.out.println("Exiting Address Book...");
+                case 5: // Back to Main Menu
+                    managing = false;
                     break;
 
                 default:
@@ -304,5 +395,4 @@ public class AddressBookSystem {
             }
         }
     }
-
 }
