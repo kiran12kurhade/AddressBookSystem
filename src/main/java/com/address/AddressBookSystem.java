@@ -238,28 +238,38 @@ public class AddressBookSystem {
             sc.nextLine(); // Consume the newline character
 
             switch (choice) {
-                case 1: // Add new contact
-                    System.out.println("Enter First Name: ");
-                    String firstName = sc.nextLine();
-                    System.out.println("Enter Last Name: ");
-                    String lastName = sc.nextLine();
-                    System.out.println("Enter Address: ");
-                    String address = sc.nextLine();
-                    System.out.println("Enter City: ");
-                    String city = sc.nextLine();
-                    System.out.println("Enter State: ");
-                    String state = sc.nextLine();
-                    System.out.println("Enter Zip: ");
-                    String zip = sc.nextLine();
-                    System.out.println("Enter Phone Number: ");
-                    String phoneNumber = sc.nextLine();
-                    System.out.println("Enter Email: ");
-                    String email = sc.nextLine();
+                case 1: // Add multiple new contacts
+                    boolean addingContacts = true;
+                    while (addingContacts) {
+                        System.out.println("Enter First Name: ");
+                        String firstName = sc.nextLine();
+                        System.out.println("Enter Last Name: ");
+                        String lastName = sc.nextLine();
+                        System.out.println("Enter Address: ");
+                        String address = sc.nextLine();
+                        System.out.println("Enter City: ");
+                        String city = sc.nextLine();
+                        System.out.println("Enter State: ");
+                        String state = sc.nextLine();
+                        System.out.println("Enter Zip: ");
+                        String zip = sc.nextLine();
+                        System.out.println("Enter Phone Number: ");
+                        String phoneNumber = sc.nextLine();
+                        System.out.println("Enter Email: ");
+                        String email = sc.nextLine();
 
-                    // Create new contact and add to address book
-                    Contact newContact = new Contact(firstName, lastName, address, city, state, zip, phoneNumber, email);
-                    addressBook.addContact(newContact);
-                    System.out.println("Contact added successfully!");
+                        // Create new contact and add to address book
+                        Contact newContact = new Contact(firstName, lastName, address, city, state, zip, phoneNumber, email);
+                        addressBook.addContact(newContact);
+                        System.out.println("Contact added successfully!");
+
+                        // Ask if the user wants to add another contact
+                        System.out.println("Do you want to add another contact? (yes/no): ");
+                        String response = sc.nextLine();
+                        if (!response.equalsIgnoreCase("yes")) {
+                            addingContacts = false;
+                        }
+                    }
                     break;
 
                 case 2: // Edit existing contact
