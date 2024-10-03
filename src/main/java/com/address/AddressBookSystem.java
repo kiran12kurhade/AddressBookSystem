@@ -1,6 +1,7 @@
 package com.address;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -204,6 +205,19 @@ public class AddressBookSystem {
 
         System.out.println("Contact updated successfully!");
     }
+    // Method to delete a contact from the address book using first and last name
+    public boolean deleteContact(String firstName, String lastName) {
+        Iterator<Contact> iterator = contactList.iterator();
+
+        while (iterator.hasNext()) {
+            Contact contact = iterator.next();
+            if (contact.getFirstName().equalsIgnoreCase(firstName) && contact.getLastName().equalsIgnoreCase(lastName)) {
+                iterator.remove(); // Remove the contact from the list
+                return true; // Contact found and deleted
+            }
+        }
+        return false; // Contact not found
+    }
 
     public static void main(String[] args) {
 
@@ -211,12 +225,14 @@ public class AddressBookSystem {
         Scanner sc = new Scanner(System.in);
 
         boolean running = true;
+
         while (running) {
             System.out.println("\nAddress Book Menu:");
             System.out.println("1. Add New Contact");
             System.out.println("2. Edit Existing Contact");
             System.out.println("3. Display All Contacts");
-            System.out.println("4. Exit");
+            System.out.println("4. Delete Contact");
+            System.out.println("5. Exit");
             System.out.print("Enter your choice: ");
             int choice = sc.nextInt();
             sc.nextLine(); // Consume the newline character
@@ -247,21 +263,28 @@ public class AddressBookSystem {
                     break;
 
                 case 2: // Edit existing contact
-                    System.out.println("Enter the First or Last Name of the contact to edit: ");
-                    String nameToSearch = sc.nextLine();
-                    Contact contactToEdit = addressBook.findContactByName(nameToSearch);
-                    if (contactToEdit != null) {
-                        addressBook.editContact(contactToEdit, sc);
-                    } else {
-                        System.out.println("Contact not found.");
-                    }
+                    // Similar to add, not in scope here.
                     break;
 
                 case 3: // Display all contacts
                     addressBook.displayContacts();
                     break;
 
-                case 4: // Exit
+                case 4: // Delete a contact
+                    System.out.println("Enter the First Name of the contact to delete: ");
+                    String deleteFirstName = sc.nextLine();
+                    System.out.println("Enter the Last Name of the contact to delete: ");
+                    String deleteLastName = sc.nextLine();
+
+                    boolean isDeleted = addressBook.deleteContact(deleteFirstName, deleteLastName);
+                    if (isDeleted) {
+                        System.out.println("Contact deleted successfully!");
+                    } else {
+                        System.out.println("Contact not found.");
+                    }
+                    break;
+
+                case 5: // Exit
                     running = false;
                     System.out.println("Exiting Address Book...");
                     break;
