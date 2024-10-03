@@ -103,6 +103,18 @@ class Contact {
                 ", email='" + email + '\'' +
                 '}';
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Contact)) return false;
+        Contact contact = (Contact) obj;
+        return firstName.equalsIgnoreCase(contact.firstName) && lastName.equalsIgnoreCase(contact.lastName);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * firstName.toLowerCase().hashCode() + lastName.toLowerCase().hashCode();
+    }
 }
 
 
@@ -115,8 +127,18 @@ class AddressBookSystem {
     }
 
     // Method to add a new contact to the address book
-    public void addContact(Contact contact) {
+    public boolean addContact(Contact contact) {
+        // Check for duplicate using Java Streams
+        boolean isDuplicate = contactList.stream()
+                .anyMatch(existingContact -> existingContact.equals(contact));
+
+        if (isDuplicate) {
+            System.out.println("Duplicate contact found: " + contact);
+            return false; // Indicate that the contact was not added
+        }
+
         contactList.add(contact);
+        return true; // Indicate that the contact was added successfully
     }
 
     // Method to display all contacts in the address book
