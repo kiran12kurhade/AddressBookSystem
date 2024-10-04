@@ -1,10 +1,6 @@
 package com.address;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 class Contact {
@@ -113,14 +109,20 @@ class Contact {
 
 class AddressBook {
     private List<Contact> contacts;
+    private Map<String, List<Contact>> cityDictionary;
+    private Map<String, List<Contact>> stateDictionary;
 
     public AddressBook() {
         this.contacts = new ArrayList<>();
+        this.cityDictionary = new HashMap<>();
+        this.stateDictionary = new HashMap<>();
     }
 
     public void addContact(Contact contact) {
         if (!isDuplicate(contact)) {
             this.contacts.add(contact);
+            addToCityDictionary(contact);
+            addToStateDictionary(contact);
             System.out.println("Contact added successfully!");
         } else {
             System.out.println("Duplicate entry! Contact with the same name already exists.");
@@ -144,6 +146,8 @@ class AddressBook {
         Contact contact = findContactByName(firstName, lastName);
         if (contact != null) {
             contacts.remove(contact);
+            removeFromCityDictionary(contact);
+            removeFromStateDictionary(contact);
             return true;
         }
         return false;
@@ -153,16 +157,40 @@ class AddressBook {
         return contacts;
     }
 
+    public void addToCityDictionary(Contact contact) {
+        cityDictionary.computeIfAbsent(contact.getCity().toLowerCase(), k -> new ArrayList<>()).add(contact);
+    }
+
+    public void addToStateDictionary(Contact contact) {
+        stateDictionary.computeIfAbsent(contact.getState().toLowerCase(), k -> new ArrayList<>()).add(contact);
+    }
+
+    public void removeFromCityDictionary(Contact contact) {
+        List<Contact> cityContacts = cityDictionary.get(contact.getCity().toLowerCase());
+        if (cityContacts != null) {
+            cityContacts.remove(contact);
+            if (cityContacts.isEmpty()) {
+                cityDictionary.remove(contact.getCity().toLowerCase());
+            }
+        }
+    }
+
+    public void removeFromStateDictionary(Contact contact) {
+        List<Contact> stateContacts = stateDictionary.get(contact.getState().toLowerCase());
+        if (stateContacts != null) {
+            stateContacts.remove(contact);
+            if (stateContacts.isEmpty()) {
+                stateDictionary.remove(contact.getState().toLowerCase());
+            }
+        }
+    }
+
     public List<Contact> searchByCity(String city) {
-        return contacts.stream()
-                .filter(contact -> contact.getCity().equalsIgnoreCase(city))
-                .collect(Collectors.toList());
+        return cityDictionary.getOrDefault(city.toLowerCase(), new ArrayList<>());
     }
 
     public List<Contact> searchByState(String state) {
-        return contacts.stream()
-                .filter(contact -> contact.getState().equalsIgnoreCase(state))
-                .collect(Collectors.toList());
+        return stateDictionary.getOrDefault(state.toLowerCase(), new ArrayList<>());
     }
 
     @Override
@@ -246,7 +274,9 @@ public class AddressBookMain {
             System.out.println("2. View All Contacts");
             System.out.println("3. Edit Contact");
             System.out.println("4. Delete Contact");
-            System.out.println("5. Back to Main Menu");
+            System.out.println("5. View Contacts by City");
+            System.out.println("6. View Contacts by State");
+            System.out.println("7. Back to Main Menu");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -266,6 +296,12 @@ public class AddressBookMain {
                     deleteContact(scanner, addressBook);
                     break;
                 case 5:
+                    viewContactsByCity(scanner, addressBook);
+                    break;
+                case 6:
+                    viewContactsByState(scanner, addressBook);
+                    break;
+                case 7:
                     manageMore = false;
                     break;
                 default:
@@ -408,6 +444,30 @@ public class AddressBookMain {
         if (!results.isEmpty()) {
             System.out.println("Contacts found in state '" + state + "':");
             results.forEach(System.out::println);
+        } else {
+            System.out.println("No contacts found in state '" + state + "'.");
+        }
+    }
+
+    private static void viewContactsByCity(Scanner scanner, AddressBook addressBook) {
+        System.out.print("Enter city to view contacts: ");
+        String city = scanner.nextLine();
+        List<Contact> contacts = addressBook.searchByCity(city);
+        if (!contacts.isEmpty()) {
+            System.out.println("Contacts in city '" + city + "':");
+            contacts.forEach(System.out::println);
+        } else {
+            System.out.println("No contacts found in city '" + city + "'.");
+        }
+    }
+
+    private static void viewContactsByState(Scanner scanner, AddressBook addressBook) {
+        System.out.print("Enter state to view contacts: ");
+        String state = scanner.nextLine();
+        List<Contact> contacts = addressBook.searchByState(state);
+        if (!contacts.isEmpty()) {
+            System.out.println("Contacts in state '" + state + "':");
+            contacts.forEach(System.out::println);
         } else {
             System.out.println("No contacts found in state '" + state + "'.");
         }
