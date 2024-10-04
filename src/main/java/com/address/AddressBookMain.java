@@ -205,6 +205,18 @@ class AddressBook {
         Collections.sort(contacts, Comparator.comparing(Contact::getFirstName).thenComparing(Contact::getLastName));
     }
 
+    public void sortContactsByCity() {
+        Collections.sort(contacts, Comparator.comparing(Contact::getCity));
+    }
+
+    public void sortContactsByState() {
+        Collections.sort(contacts, Comparator.comparing(Contact::getState));
+    }
+
+    public void sortContactsByZip() {
+        Collections.sort(contacts, Comparator.comparing(Contact::getPinCode));
+    }
+
     @Override
     public String toString() {
         return contacts.stream()
@@ -226,7 +238,7 @@ public class AddressBookMain {
             System.out.println("2. Select Address Book");
             System.out.println("3. Search Across Address Books");
             System.out.println("4. Get Count by City or State");
-            System.out.println("5. Sort Contacts by Name");
+            System.out.println("5. Sort Contacts");
             System.out.println("6. Exit");
             System.out.print("Choose an option: ");
 
@@ -247,7 +259,7 @@ public class AddressBookMain {
                     getCountByCityOrState(scanner);
                     break;
                 case 5:
-                    sortContactsByName(scanner);
+                    sortContacts(scanner);
                     break;
                 case 6:
                     exit = true;
@@ -529,15 +541,47 @@ public class AddressBookMain {
         }
     }
 
-    private static void sortContactsByName(Scanner scanner) {
+    private static void sortContacts(Scanner scanner) {
+        System.out.println("Sort Contacts:");
+        System.out.println("1. By Name");
+        System.out.println("2. By City");
+        System.out.println("3. By State");
+        System.out.println("4. By Zip");
+        System.out.print("Choose an option: ");
+
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
         System.out.print("Enter the name of the Address Book to sort: ");
         String addressBookName = scanner.nextLine();
 
         if (addressBookMap.containsKey(addressBookName)) {
             AddressBook addressBook = addressBookMap.get(addressBookName);
-            addressBook.sortContactsByName();
-            System.out.println("Contacts in Address Book '" + addressBookName + "' sorted by name:");
-            viewAllContacts(addressBook);
+
+            switch (choice) {
+                case 1:
+                    addressBook.sortContactsByName();
+                    System.out.println("Contacts sorted by name:");
+                    viewAllContacts(addressBook);
+                    break;
+                case 2:
+                    addressBook.sortContactsByCity();
+                    System.out.println("Contacts sorted by city:");
+                    viewAllContacts(addressBook);
+                    break;
+                case 3:
+                    addressBook.sortContactsByState();
+                    System.out.println("Contacts sorted by state:");
+                    viewAllContacts(addressBook);
+                    break;
+                case 4:
+                    addressBook.sortContactsByZip();
+                    System.out.println("Contacts sorted by zip:");
+                    viewAllContacts(addressBook);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         } else {
             System.out.println("Address Book not found.");
         }
