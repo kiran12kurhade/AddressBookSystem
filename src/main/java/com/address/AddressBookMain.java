@@ -193,11 +193,23 @@ class AddressBook {
         return stateDictionary.getOrDefault(state.toLowerCase(), new ArrayList<>());
     }
 
+    public long countByCity(String city) {
+        return cityDictionary.getOrDefault(city.toLowerCase(), new ArrayList<>()).size();
+    }
+
+    public long countByState(String state) {
+        return stateDictionary.getOrDefault(state.toLowerCase(), new ArrayList<>()).size();
+    }
+
+    public void sortContactsByName() {
+        Collections.sort(contacts, Comparator.comparing(Contact::getFirstName).thenComparing(Contact::getLastName));
+    }
+
     @Override
     public String toString() {
-        return "AddressBook{" +
-                "contacts=" + contacts +
-                '}';
+        return contacts.stream()
+                .map(Contact::toString)
+                .collect(Collectors.joining("\n"));
     }
 }
 
@@ -213,7 +225,9 @@ public class AddressBookMain {
             System.out.println("1. Create New Address Book");
             System.out.println("2. Select Address Book");
             System.out.println("3. Search Across Address Books");
-            System.out.println("4. Exit");
+            System.out.println("4. Get Count by City or State");
+            System.out.println("5. Sort Contacts by Name");
+            System.out.println("6. Exit");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -230,6 +244,12 @@ public class AddressBookMain {
                     searchAcrossAddressBooks(scanner);
                     break;
                 case 4:
+                    getCountByCityOrState(scanner);
+                    break;
+                case 5:
+                    sortContactsByName(scanner);
+                    break;
+                case 6:
                     exit = true;
                     break;
                 default:
@@ -312,11 +332,11 @@ public class AddressBookMain {
 
     private static void addMultipleContacts(Scanner scanner, AddressBook addressBook) {
         boolean addMore = true;
+
         while (addMore) {
             addNewContact(scanner, addressBook);
             System.out.print("Do you want to add another contact? (yes/no): ");
-            String response = scanner.nextLine();
-            if (response.equalsIgnoreCase("no")) {
+            if (!scanner.nextLine().equalsIgnoreCase("yes")) {
                 addMore = false;
             }
         }
@@ -470,6 +490,56 @@ public class AddressBookMain {
             contacts.forEach(System.out::println);
         } else {
             System.out.println("No contacts found in state '" + state + "'.");
+        }
+    }
+
+    private static void getCountByCityOrState(Scanner scanner) {
+        System.out.println("1. Get count by City");
+        System.out.println("2. Get count by State");
+        System.out.print("Choose an option: ");
+
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        switch (choice) {
+            case 1:
+                System.out.print("Enter city to get count: ");
+                String city = scanner.nextLine();
+                long cityCount = 0;
+
+                for (Map.Entry<String, AddressBook> entry : addressBookMap.entrySet()) {
+                    cityCount += entry.getValue().countByCity(city);
+                }
+
+                System.out.println("Total contacts in city '" + city + "': " + cityCount);
+                break;
+            case 2:
+                System.out.print("Enter state to get count: ");
+                String state = scanner.nextLine();
+                long stateCount = 0;
+
+                for (Map.Entry<String, AddressBook> entry : addressBookMap.entrySet()) {
+                    stateCount += entry.getValue().countByState(state);
+                }
+
+                System.out.println("Total contacts in state '" + state + "': " + stateCount);
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+    }
+
+    private static void sortContactsByName(Scanner scanner) {
+        System.out.print("Enter the name of the Address Book to sort: ");
+        String addressBookName = scanner.nextLine();
+
+        if (addressBookMap.containsKey(addressBookName)) {
+            AddressBook addressBook = addressBookMap.get(addressBookName);
+            addressBook.sortContactsByName();
+            System.out.println("Contacts in Address Book '" + addressBookName + "' sorted by name:");
+            viewAllContacts(addressBook);
+        } else {
+            System.out.println("Address Book not found.");
         }
     }
 }
